@@ -1,290 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Human Test</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Meta tags for the chaos ritual -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A completely fair game that definitely doesn't hate you.">
+    <meta name="keywords" content="rage, betrayal, unfair, evil, game, suffering, lies">
+    <meta name="author" content="Your Friendly Neighborhood Demon 😈">
+    <meta name="robots" content="noindex, nofollow, cry about it">
 
-<style>
-/* ===============================
-   CORE STYLE
-================================ */
-* {
-    box-sizing: border-box;
-    user-select: none;
-}
+    <!-- Title that mocks you -->
+    <title>Unhinged Rage Biter: Prove You're Not a Potato</title>
 
-body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #f2f2f2;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background 0.6s;
-}
+    <!-- Link the torment stylesheet -->
+    <link rel="stylesheet" href="style.css">
 
-body.dark {
-    background: #000;
-}
-
-.app {
-    width: 360px;
-    background: #fff;
-    padding: 24px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(0,0,0,0.25);
-    position: relative;
-}
-
-body.dark .app {
-    background: #111;
-    color: #eee;
-}
-
-h2 {
-    margin: 0 0 10px;
-}
-
-.message {
-    min-height: 24px;
-    margin: 10px 0;
-    color: #666;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 20px 0;
-}
-
-.tile {
-    height: 70px;
-    background: #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.15s;
-}
-
-.tile:hover {
-    transform: scale(1.05);
-}
-
-.controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#easy {
-    background: #2196f3;
-    color: white;
-}
-
-#reset {
-    background: #4caf50;
-    color: white;
-}
-
-/* Flashlight */
-.flash {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-        circle 120px at 0 0,
-        transparent 0%,
-        rgba(0,0,0,0.95) 90%
-    );
-    transition: opacity 0.4s;
-}
-
-/* Falling button */
-@keyframes fall {
-    to {
-        transform: translateY(200px) rotate(40deg);
-        opacity: 0;
-    }
-}
-
-.fall {
-    animation: fall 1.2s forwards;
-}
-
-/* Rage text */
-.bwahaha {
-    color: red;
-    margin-top: 10px;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    50% { opacity: 0.4; }
-}
-
-/* End screen */
-.end {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    color: white;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-</style>
+    <!-- Favicon? Nah, just pure evil -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>😈</text></svg>">
 </head>
-
 <body>
+    <!-- Darkening overlay - the slow descent into despair -->
+    <div id="overlay" class="overlay"></div>
 
-<div class="app">
-    <h2>Human Verification</h2>
-    <div class="message" id="msg">Find the odd one.</div>
-
-    <div class="grid" id="grid"></div>
-
-    <div class="controls">
-        <button id="easy">Easy</button>
-        <button id="reset">Reset</button>
-    </div>
-</div>
-
-<div class="flash" id="flash"></div>
-<div class="end" id="end"></div>
-
-<script>
-/* ===============================
-   RAGE ENGINE
-================================ */
-
-let correct = 0;
-let rage = 0;
-let dark = false;
-let clicks = 0;
-
-const grid = document.getElementById("grid");
-const msg = document.getElementById("msg");
-const flash = document.getElementById("flash");
-const end = document.getElementById("end");
-
-/* -----------------------------
-   BUILD GRID
------------------------------- */
-function build() {
-    grid.innerHTML = "";
-    const base = rand(120,170);
-    correct = rand(0,15);
-
-    for (let i = 0; i < 16; i++) {
-        const t = document.createElement("div");
-        t.className = "tile";
-        t.style.background =
-            i === correct
-            ? `rgb(${base+3},${base+3},${base+3})`
-            : `rgb(${base},${base},${base})`;
-
-        t.onclick = () => click(i);
-        grid.appendChild(t);
-    }
-}
-
-/* -----------------------------
-   CLICK LOGIC
------------------------------- */
-function click(i) {
-    rage++;
-    clicks++;
-
-    if (Math.random() < 0.8) {
-        msg.textContent = pick([
-            "Wrong.",
-            "No.",
-            "Not that.",
-            "You hesitated.",
-            "Almost.",
-            "Try again."
-        ]);
-    } else {
-        msg.textContent = "Correct.";
-    }
-
-    if (rage > 6) msg.textContent = "You're trying too hard.";
-    if (rage > 10) msg.textContent = "Stop overthinking.";
-    if (rage > 14) endGame();
-
-    build();
-}
-
-/* -----------------------------
-   EASY BUTTON = LIE
------------------------------- */
-document.getElementById("easy").onclick = () => {
-    if (dark) return;
-
-    dark = true;
-    document.body.classList.add("dark");
-    flash.style.opacity = 1;
-
-    const btn = document.getElementById("easy");
-    btn.classList.add("fall");
-
-    setTimeout(() => {
-        btn.style.display = "none";
-        const t = document.createElement("div");
-        t.className = "bwahaha";
-        t.textContent = "You believed that.";
-        document.querySelector(".controls").appendChild(t);
-    }, 1200);
-};
-
-/* -----------------------------
-   FLASHLIGHT FOLLOW
------------------------------- */
-document.addEventListener("mousemove", e => {
-    if (!dark) return;
-    flash.style.background = `
-        radial-gradient(
-            circle 120px at ${e.clientX}px ${e.clientY}px,
-            transparent 0%,
-            rgba(0,0,0,0.95) 90%
-        )
-    `;
-});
-
-/* -----------------------------
-   END
------------------------------- */
-function endGame() {
-    end.style.display = "flex";
-    end.innerHTML = `
-        <div>
-            <h1>Enough.</h1>
-            <p>This isn't about winning.</p>
-            <p>Close the tab.</p>
+    <!-- Main container for all the lies -->
+    <div id="container" class="container">
+        
+        <!-- Verification screen - the false hope begins -->
+        <div id="verification" class="verification">
+            <h1>Are You Human?</h1>
+            <p>We need to make sure you're not a bot... or a hamster in disguise.</p>
+            <p>This is a very serious security check. No pressure!</p>
+            <p>Tick the box below to prove your humanity.</p>
+            <p>(We promise nothing bad will happen.)</p>
+            <p>(Totally fair game ahead.)</p>
+            <p>(Your cursor is safe with us.)</p>
+            <p>(The button won't run away.)</p>
+            <p>(Trust us.)</p>
+            
+            <label class="big-label">
+                <input type="checkbox" id="human-check">
+                <span>I'm totally human (promise! 🤞)</span>
+            </label>
+            
+            <p class="tiny-lie">By checking this box you agree to mild psychological torment.</p>
+            <p class="tiny-lie">Side effects may include rage, confusion, and existential dread.</p>
+            <p class="tiny-lie">No refunds. Ever.</p>
         </div>
-    `;
-}
 
-/* -----------------------------
-   UTILS
------------------------------- */
-function rand(a,b){ return Math.floor(Math.random()*(b-a))+a; }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+        <!-- The actual game - where the betrayal truly begins -->
+        <div id="game" class="game hidden">
+            <h1>Select the Correct Square... If You Can! 😏</h1>
+            <p>One of these squares is special. Find it!</p>
+            <p>It's completely fair. We swear.</p>
+            <p>The highlight is honest. Mostly.</p>
+            <p>Nothing will change when you hover. Pinky promise.</p>
+            <p>The grid won't fade. The button won't fall. Everything is fine.</p>
+            
+            <!-- The cursed 3x3 grid of lies -->
+            <div id="grid" class="grid">
+                <div class="square" data-id="1" title="Totally not correct... or is it?"></div>
+                <div class="square" data-id="2" title="This one looks promising!"></div>
+                <div class="square" data-id="3" title="Safe choice, right?"></div>
+                <div class="square" data-id="4" title="Middle left? Classic winner."></div>
+                <div class="square" data-id="5" title="Center square! Always lucky!"></div>
+                <div class="square" data-id="6" title="Feeling lucky?"></div>
+                <div class="square" data-id="7" title="Bottom left never fails."></div>
+                <div class="square" data-id="8" title="This one vibrates with energy!"></div>
+                <div class="square" data-id="9" title="Bottom right is where winners click."></div>
+            </div>
+            
+            <!-- The submit button - your false hope incarnate -->
+            <button id="submit-btn" class="submit-btn">
+                Click Me If You Dare! (It's totally stable)
+            </button>
+            
+            <p class="tiny-lie bottom">This button will stay exactly where it is.</p>
+            <p class="tiny-lie bottom">It won't plummet into the abyss.</p>
+            <p class="tiny-lie bottom">Your victory is guaranteed.</p>
+            <p class="tiny-lie bottom">Probably.</p>
+        </div>
 
-build();
-</script>
+        <!-- Creepy cursor light that follows you like a stalker -->
+        <div id="cursor-light" class="cursor-light"></div>
+        
+        <!-- Secret evil message for devs only -->
+        <!-- 
+            If you're reading this in dev tools: 
+            The game is alive. 
+            It knows what you did last summer. 
+            Run while you still can. 🏃‍♂️💨
+        -->
+    </div>
 
+    <!-- Load the betrayal engine -->
+    <script src="script.js"></script>
+
+    <!-- Extra empty lines for dramatic effect -->
+    <!-- The void stares back -->
+    <!-- Your rage fuels me -->
+    <!-- There is no escape -->
+    <!-- The squares are lying -->
+    <!-- The button hates you -->
+    <!-- Refresh? Too bad. It remembers. -->
+    <!-- Muahahahaha 😈 -->
 </body>
 </html>
