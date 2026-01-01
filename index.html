@@ -2,45 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Behavior Mirror</title>
+<title>Human Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ================================
-   BEHAVIOR MIRROR — FINAL BUILD
+/* ===============================
+   CORE STYLE
 ================================ */
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
 
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
     background: #f2f2f2;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    transition: background 0.5s;
+    transition: background 0.6s;
 }
 
 body.dark {
-    background: #080808;
-    color: #eee;
+    background: #000;
 }
 
 .app {
     width: 360px;
-    background: white;
+    background: #fff;
     padding: 24px;
     border-radius: 10px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.25);
     text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.25);
+    position: relative;
 }
 
 body.dark .app {
     background: #111;
+    color: #eee;
 }
 
 h2 {
-    margin-top: 0;
+    margin: 0 0 10px;
+}
+
+.message {
+    min-height: 24px;
+    margin: 10px 0;
+    color: #666;
 }
 
 .grid {
@@ -53,9 +64,9 @@ h2 {
 .tile {
     height: 70px;
     background: #ccc;
+    border-radius: 6px;
     cursor: pointer;
-    border-radius: 4px;
-    transition: 0.2s;
+    transition: 0.15s;
 }
 
 .tile:hover {
@@ -75,30 +86,63 @@ button {
     cursor: pointer;
 }
 
-#easy { background: #2196f3; color: white; }
-#reset { background: #4caf50; color: white; }
-
-.message {
-    height: 24px;
-    margin: 10px 0;
-    color: #555;
+#easy {
+    background: #2196f3;
+    color: white;
 }
 
-.stat {
-    font-size: 13px;
-    margin-top: 5px;
+#reset {
+    background: #4caf50;
+    color: white;
 }
 
-.overlay {
+/* Flashlight */
+.flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+        circle 120px at 0 0,
+        transparent 0%,
+        rgba(0,0,0,0.95) 90%
+    );
+    transition: opacity 0.4s;
+}
+
+/* Falling button */
+@keyframes fall {
+    to {
+        transform: translateY(200px) rotate(40deg);
+        opacity: 0;
+    }
+}
+
+.fall {
+    animation: fall 1.2s forwards;
+}
+
+/* Rage text */
+.bwahaha {
+    color: red;
+    margin-top: 10px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    50% { opacity: 0.4; }
+}
+
+/* End screen */
+.end {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.9);
     color: white;
     display: none;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     text-align: center;
-    padding: 40px;
 }
 </style>
 </head>
@@ -106,12 +150,10 @@ button {
 <body>
 
 <div class="app">
-    <h2>Behavior Mirror</h2>
-    <div class="message" id="msg">Click the different tile.</div>
-    <div class="grid" id="grid"></div>
+    <h2>Human Verification</h2>
+    <div class="message" id="msg">Find the odd one.</div>
 
-    <div class="stat">Focus Level: <span id="focus">100</span></div>
-    <div class="stat">Reaction Score: <span id="score">0</span></div>
+    <div class="grid" id="grid"></div>
 
     <div class="controls">
         <button id="easy">Easy</button>
@@ -119,137 +161,129 @@ button {
     </div>
 </div>
 
-<div class="overlay" id="overlay">
-    <div>
-        <h2>Pause</h2>
-        <p>This experiment reacts to frustration.</p>
-        <p>You can close it anytime.</p>
-        <button onclick="location.reload()">Restart</button>
-    </div>
-</div>
+<div class="flash" id="flash"></div>
+<div class="end" id="end"></div>
 
 <script>
-/* ================================
-   STATE
+/* ===============================
+   RAGE ENGINE
 ================================ */
+
 let correct = 0;
-let score = 0;
-let focus = 100;
 let rage = 0;
-let lastClick = Date.now();
 let dark = false;
+let clicks = 0;
 
 const grid = document.getElementById("grid");
 const msg = document.getElementById("msg");
-const focusEl = document.getElementById("focus");
-const scoreEl = document.getElementById("score");
-const overlay = document.getElementById("overlay");
+const flash = document.getElementById("flash");
+const end = document.getElementById("end");
 
-/* ================================
-   INIT
-================================ */
-function init() {
-    buildGrid();
-}
-init();
-
-/* ================================
-   GRID
-================================ */
-function buildGrid() {
+/* -----------------------------
+   BUILD GRID
+------------------------------ */
+function build() {
     grid.innerHTML = "";
     const base = rand(120,170);
     correct = rand(0,15);
 
-    for(let i=0;i<16;i++){
-        const d = document.createElement("div");
-        d.className = "tile";
-        d.style.background =
+    for (let i = 0; i < 16; i++) {
+        const t = document.createElement("div");
+        t.className = "tile";
+        t.style.background =
             i === correct
             ? `rgb(${base+3},${base+3},${base+3})`
             : `rgb(${base},${base},${base})`;
 
-        d.onclick = () => clickTile(i);
-        grid.appendChild(d);
+        t.onclick = () => click(i);
+        grid.appendChild(t);
     }
 }
 
-/* ================================
+/* -----------------------------
    CLICK LOGIC
-================================ */
-function clickTile(i){
-    const now = Date.now();
-    const delta = now - lastClick;
-    lastClick = now;
+------------------------------ */
+function click(i) {
+    rage++;
+    clicks++;
 
-    // behavior tracking
-    if(delta < 200) rage += 2;
-    if(delta > 1500) rage += 1;
-
-    // deception
-    if(Math.random() < 0.75){
-        msg.textContent = randomMsg();
+    if (Math.random() < 0.8) {
+        msg.textContent = pick([
+            "Wrong.",
+            "No.",
+            "Not that.",
+            "You hesitated.",
+            "Almost.",
+            "Try again."
+        ]);
     } else {
         msg.textContent = "Correct.";
-        score++;
     }
 
-    focus -= Math.floor(Math.random() * 5 + 1);
-    updateStats();
+    if (rage > 6) msg.textContent = "You're trying too hard.";
+    if (rage > 10) msg.textContent = "Stop overthinking.";
+    if (rage > 14) endGame();
 
-    if(focus <= 0){
-        showOverlay();
-    }
-
-    buildGrid();
+    build();
 }
 
-/* ================================
-   EASY BUTTON TRAP
-================================ */
+/* -----------------------------
+   EASY BUTTON = LIE
+------------------------------ */
 document.getElementById("easy").onclick = () => {
+    if (dark) return;
+
+    dark = true;
     document.body.classList.add("dark");
-    msg.textContent = "It doesn’t get easier.";
+    flash.style.opacity = 1;
+
+    const btn = document.getElementById("easy");
+    btn.classList.add("fall");
+
+    setTimeout(() => {
+        btn.style.display = "none";
+        const t = document.createElement("div");
+        t.className = "bwahaha";
+        t.textContent = "You believed that.";
+        document.querySelector(".controls").appendChild(t);
+    }, 1200);
 };
 
-/* ================================
-   RESET
-================================ */
-document.getElementById("reset").onclick = () => {
-    location.reload();
-};
+/* -----------------------------
+   FLASHLIGHT FOLLOW
+------------------------------ */
+document.addEventListener("mousemove", e => {
+    if (!dark) return;
+    flash.style.background = `
+        radial-gradient(
+            circle 120px at ${e.clientX}px ${e.clientY}px,
+            transparent 0%,
+            rgba(0,0,0,0.95) 90%
+        )
+    `;
+});
 
-/* ================================
-   UTIL
-================================ */
-function updateStats(){
-    focusEl.textContent = focus;
-    scoreEl.textContent = score;
+/* -----------------------------
+   END
+------------------------------ */
+function endGame() {
+    end.style.display = "flex";
+    end.innerHTML = `
+        <div>
+            <h1>Enough.</h1>
+            <p>This isn't about winning.</p>
+            <p>Close the tab.</p>
+        </div>
+    `;
 }
 
-function rand(a,b){
-    return Math.floor(Math.random()*(b-a))+a;
-}
+/* -----------------------------
+   UTILS
+------------------------------ */
+function rand(a,b){ return Math.floor(Math.random()*(b-a))+a; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-function randomMsg(){
-    const lines = [
-        "Too fast.",
-        "Too slow.",
-        "Not quite.",
-        "Try again.",
-        "Focus.",
-        "Almost.",
-        "You hesitated.",
-        "Wrong timing.",
-        "Overthinking.",
-        "Missed it."
-    ];
-    return lines[Math.floor(Math.random()*lines.length)];
-}
-
-function showOverlay(){
-    overlay.style.display = "flex";
-}
+build();
 </script>
 
 </body>
