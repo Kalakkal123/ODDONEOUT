@@ -1,277 +1,255 @@
-/* =========================================================
-   BEHAVIOR MIRROR – FINAL YEAR PROJECT
-   STYLE SHEET (RAGE EDITION)
-   Author: You
-   Purpose: Visual + psychological feedback
-========================================================= */
-
-/* ===============================
-   GLOBAL RESET
-================================ */
-* {
-    box-sizing: border-box;
-    user-select: none;
-}
+/* style.css - The Visual Tormentor 😈 */
+/* This CSS doesn't just style... it GASLIGHTS. It lies to your eyes. */
+/* Buckle up, because nothing here is stable. NOTHING. */
 
 body {
     margin: 0;
     padding: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont;
-    background: #f1f1f1;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #0f0f0f;
+    font-family: 'Comic Sans MS', cursive, sans-serif; /* Maximum psychological damage */
+    color: #ff69b4;
+    transition: background-color 4s ease;
+}
+
+#container {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    transition: background 0.5s ease;
-}
-
-/* ===============================
-   DARK MODE
-================================ */
-body.dark {
-    background: radial-gradient(circle at center, #0a0a0a, #000);
-    color: #eee;
-}
-
-/* ===============================
-   APP CONTAINER
-================================ */
-.app {
-    width: 360px;
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 0 35px rgba(0,0,0,0.25);
-    text-align: center;
-    transition: background 0.4s, box-shadow 0.4s;
-}
-
-body.dark .app {
-    background: #111;
-    box-shadow: 0 0 40px rgba(255,0,0,0.1);
-}
-
-/* ===============================
-   HEADINGS
-================================ */
-h2 {
-    margin-top: 0;
-    letter-spacing: 0.5px;
-}
-
-/* ===============================
-   MESSAGE AREA
-================================ */
-.message {
-    min-height: 24px;
-    font-size: 14px;
-    margin: 12px 0;
-    color: #555;
-    transition: color 0.3s;
-}
-
-body.dark .message {
-    color: #ff5555;
-}
-
-/* ===============================
-   GRID
-================================ */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 20px auto;
-}
-
-.tile {
-    width: 70px;
-    height: 70px;
-    background: #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
-}
-
-.tile:hover {
-    transform: scale(1.07);
-    box-shadow: 0 0 8px rgba(0,0,0,0.4);
-}
-
-/* Dark mode tiles */
-body.dark .tile {
-    background: #333;
-}
-
-/* ===============================
-   STATS
-================================ */
-.stat {
-    font-size: 13px;
-    margin-top: 6px;
-    color: #555;
-}
-
-body.dark .stat {
-    color: #bbb;
-}
-
-/* ===============================
-   CONTROLS
-================================ */
-.controls {
-    display: flex;
-    gap: 10px;
     justify-content: center;
-    margin-top: 15px;
+    z-index: 2;
 }
 
-button {
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s;
-    font-size: 14px;
-}
-
-button:hover {
-    transform: translateY(-1px);
-}
-
-#easy {
-    background: #2196f3;
-    color: white;
-}
-
-#reset {
-    background: #4caf50;
-    color: white;
-}
-
-/* ===============================
-   RAGE EFFECTS
-================================ */
-body.dark .tile:hover {
-    box-shadow: 0 0 12px rgba(255,0,0,0.4);
-}
-
-body.dark .tile {
-    filter: contrast(1.1);
-}
-
-/* ===============================
-   FLASHLIGHT
-================================ */
-.flashlight {
+.overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
     pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-        circle 120px at 0 0,
-        transparent 0%,
-        rgba(0,0,0,0.95) 90%
-    );
-    transition: opacity 0.4s;
+    transition: background-color 10s ease;
     z-index: 10;
 }
 
-.flashlight.active {
-    opacity: 1;
-}
-
-/* ===============================
-   BOT SCREEN
-================================ */
-.bot {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    color: #ff4444;
-    display: none;
-    justify-content: center;
-    align-items: center;
+/* Verification screen - innocent at first... */
+.verification {
     text-align: center;
-    z-index: 100;
-    font-size: 28px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+    transition: all 0.8s ease;
 }
 
-/* ===============================
-   FALLING BUTTON
-================================ */
-@keyframes fall {
-    0% {
-        transform: translateY(0) rotate(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(200px) rotate(45deg);
-        opacity: 0;
-    }
+.verification h1 {
+    font-size: 3em;
+    color: #ff69b4;
+    text-shadow: 0 0 10px #ff1493;
 }
 
-.fall {
-    animation: fall 1.3s forwards;
+.verification p {
+    font-size: 1.5em;
+    color: #ffb6c1;
 }
 
-/* ===============================
-   EVIL TEXT
-================================ */
-.bwahaha {
-    margin-top: 10px;
-    font-size: 16px;
-    color: red;
-    animation: pulse 1s infinite;
+.verification label {
+    font-size: 2em;
+    cursor: pointer;
+}
+
+.verification input[type="checkbox"] {
+    transform: scale(2);
+    margin-left: 20px;
+    accent-color: #ff1493;
+}
+
+/* Fade animations for fake politeness */
+.fade-out {
+    opacity: 0;
+    transform: scale(0.8);
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* The game of lies */
+.game {
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+}
+
+.game h1 {
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    color: #00ff00;
+    text-shadow: 0 0 20px #00ff00;
+    animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+    0% { text-shadow: 0 0 10px #0f0; }
+    2% { text-shadow: -5px 0 10px #f00; }
+    4% { text-shadow: 5px 0 10px #00f; }
+    6% { text-shadow: 0 0 20px #0f0; }
+    100% { text-shadow: 0 0 10px #0f0; }
+}
+
+/* The cursed grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 40px auto;
+    width: 500px;
+    height: 500px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    transition: opacity 20s ease, transform 1s ease;
+}
+
+.square {
+    background-color: #333;
+    border: 4px solid #666;
+    border-radius: 15px;
+    cursor: crosshair;
+    transition: all 0.4s ease;
+    box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+}
+
+.square:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 30px #ff1493;
+    border-color: #ff69b4;
+}
+
+.square.correct {
+    background-color: #00ff9d !important;
+    border-color: #00ff00;
+    box-shadow: 0 0 40px #00ff00;
+    animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
+    0% { box-shadow: 0 0 20px #00ff00; }
+    50% { box-shadow: 0 0 60px #00ff00; }
+    100% { box-shadow: 0 0 20px #00ff00; }
 }
 
-/* ===============================
-   MICRO INTERACTIONS
-================================ */
-.tile:active {
-    transform: scale(0.95);
+/* Submit button - the ultimate traitor */
+.submit-btn {
+    margin-top: 50px;
+    padding: 20px 60px;
+    font-size: 2em;
+    background: linear-gradient(45deg, #ff1493, #ff69b4);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 30px #ff1493;
+    transition: all 0.6s ease;
+    position: relative;
+    z-index: 5;
 }
 
-button:active {
-    transform: scale(0.95);
+.submit-btn:hover {
+    transform: scale(1.2) rotate(-5deg);
+    box-shadow: 0 0 60px #ff69b4;
 }
 
-/* ===============================
-   FAKE DEPTH
-================================ */
-.app::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.2);
+.submit-btn:active {
+    transform: scale(0.9);
+}
+
+/* Cursor light - creepy stalker spotlight */
+.cursor-light {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1s ease;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Fake help toasts - sweet lies in bubble form */
+.fake-help-toast {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 20, 147, 0.9);
+    color: white;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.5em;
+    box-shadow: 0 0 20px #ff1493;
+    z-index: 20;
+    opacity: 0;
+    transition: all 0.5s ease;
     pointer-events: none;
 }
 
-/* ===============================
-   CALM MODE (END STATE)
-================================ */
-.calm {
-    background: #101010 !important;
-    color: #aaa !important;
+.fake-help-toast.show {
+    opacity: 1;
+    bottom: 100px;
 }
 
-/* ===============================
-   ACCESSIBILITY SAFETY
-================================ */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
+/* Rage shake when player is losing it */
+@keyframes rageShake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
-/* ===============================
-   END OF FILE
-================================ */
+/* Hidden class for JS control */
+.hidden {
+    display: none;
+}
+
+/* Final touch: everything feels slightly off */
+* {
+    user-select: none; /* Can't even copy text? Rage +1000 */
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,20,147,0.03) 10px, rgba(255,20,147,0.03) 20px);
+    pointer-events: none;
+    animation: subtleMove 30s linear infinite;
+}
+
+@keyframes subtleMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 100px; }
+}
+
+console.log("CSS loaded. The torment is complete. Enjoy your descent into madness. 🐙💀");
