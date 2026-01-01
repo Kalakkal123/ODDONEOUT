@@ -1,46 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select the odd one out</title>
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="aeec5f9e-3ca1-4fe8-9105-185019eb6dc3"></script>
+  <meta charset="UTF-8" />
+  <title>Human Test v2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --card: #131a2a;
+      --accent: #00ffc3;
+      --danger: #ff3b3b;
+      --text: #e9ecf1;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", system-ui;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0f1b33, #000);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      width: 340px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0,255,195,0.15);
+      animation: pop 0.6s ease;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .box {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .box:hover {
+      transform: scale(1.08);
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      min-height: 24px;
+      font-weight: bold;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00ffc3, #00bfa5);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+    }
+
+    .shake {
+      animation: shake 0.3s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .bot {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: red;
+      font-size: 2rem;
+      z-index: 999;
+      animation: glitch 0.2s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px red; }
+      50% { text-shadow: -2px -2px cyan; }
+      100% { text-shadow: 2px -2px lime; }
+    }
+  </style>
 </head>
 <body>
-    <div id="initialCaptcha" class="captcha-box">
-        <div class="captcha-content">
-            <h3>Verify you are human</h3>
-            <div class="captcha-checkbox" id="captchaCheckbox">
-                <div class="checkbox"></div>
-                <span>I'm not a robot</span>
-            </div>
-        </div>
-    </div>
 
-    <div class="container" style="display: none;">
-        <div class="title">Select the odd one out</div>
-        <div class="grid" id="grid"></div>
-        <div class="message" id="message">Click the square that looks different</div>
-        <div class="tries">Tries left: <span id="tries">3</span></div>
-        <div class="controls">
-            <button id="new" class="button">New Colors</button>
-            <button id="easier" class="button button-easier">Make it easier</button>
-        </div>
-    </div>
+<div class="app">
+  <h1>🧠 Human Test</h1>
 
-    <div id="botPopup" class="popup">
-        <div class="popup-content">
-            <h2>BOT DETECTED</h2>
-            <p>You have failed the human verification test.</p>
-        </div>
-    </div>
+  <div class="info">
+    <div>Level: <span id="level">1</span></div>
+    <div>Lives: <span id="lives">3</span></div>
+  </div>
 
-    <div id="flashlightOverlay" class="flashlight-overlay"></div>
+  <div class="grid" id="grid"></div>
 
-    <script src="script.js"></script>
+  <div class="message" id="msg">Find the odd one!</div>
+
+  <div class="controls">
+    <button onclick="resetGame()">Restart</button>
+    <button onclick="hardMode()">Hard Mode</button>
+  </div>
+</div>
+
+<div class="bot" id="bot">🤖 BOT DETECTED 🤖</div>
+
+<script>
+let level = 1;
+let lives = 3;
+let grid = document.getElementById("grid");
+let msg = document.getElementById("msg");
+let bot = document.getElementById("bot");
+
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function generateColor(base) {
+  let offset = rand(5, 25);
+  return `rgb(${base.r + offset}, ${base.g + offset}, ${base.b + offset})`;
+}
+
+function loadLevel() {
+  grid.innerHTML = "";
+  msg.textContent = "Find the odd one!";
+  
+  let size = Math.min(4 + Math.floor(level / 2), 6);
+  grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+  let base = {
+    r: rand(50, 200),
+    g: rand(50, 200),
+    b: rand(50, 200)
+  };
+
+  let oddIndex = rand(0, size * size);
+
+  for (let i = 0; i < size * size; i++) {
+    let div = document.createElement("div");
+    div.className = "box";
+
+    let color = i === oddIndex 
+      ? generateColor(base) 
+      : `rgb(${base.r},${base.g},${base.b})`;
+
+    div.style.background = color;
+
+    div.onclick = () => {
+      if (i === oddIndex) {
+        level++;
+        document.getElementById("level").textContent = level;
+        loadLevel();
+      } else {
+        lives--;
+        document.getElementById("lives").textContent = lives;
+        shakeScreen();
+
+        if (lives <= 0) {
+          triggerBot();
+        }
+      }
+    };
+
+    grid.appendChild(div);
+  }
+}
+
+function shakeScreen() {
+  document.body.classList.add("shake");
+  setTimeout(() => document.body.classList.remove("shake"), 300);
+}
+
+function triggerBot() {
+  bot.style.display = "flex";
+  setTimeout(() => {
+    bot.style.display = "none";
+    resetGame();
+  }, 2000);
+}
+
+function resetGame() {
+  level = 1;
+  lives = 3;
+  document.getElementById("level").textContent = level;
+  document.getElementById("lives").textContent = lives;
+  loadLevel();
+}
+
+function hardMode() {
+  level += 3;
+  loadLevel();
+}
+
+loadLevel();
+</script>
+
 </body>
-<footer>
-    <p class="footer-text">Made with ❤️ by <a href="https://irtaza.xyz/">Irtaza</a> - <a href="https://github.com/Irtaza2009/">GitHub</a></p>
-</footer>
 </html>
