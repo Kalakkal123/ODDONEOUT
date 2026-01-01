@@ -1,250 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Human Test v2.0</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Human Verification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root {
-      --bg: #0b0f1a;
-      --card: #131a2a;
-      --accent: #00ffc3;
-      --danger: #ff3b3b;
-      --text: #e9ecf1;
-    }
+<style>
 
-    * {
-      box-sizing: border-box;
-      font-family: "Segoe UI", system-ui;
-    }
+/* ==========================================================
+   GLOBAL
+========================================================== */
 
-    body {
-      margin: 0;
-      background: radial-gradient(circle at top, #0f1b33, #000);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
 
-    .app {
-      width: 340px;
-      background: var(--card);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 0 30px rgba(0,255,195,0.15);
-      animation: pop 0.6s ease;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f2f2f2;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.6s ease;
+}
 
-    @keyframes pop {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+body.dark {
+    background: #000;
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-      color: var(--accent);
-    }
+/* ==========================================================
+   CAPTCHA BOX
+========================================================== */
 
-    .info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
+.captcha-box {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.2);
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin: 15px 0;
-    }
+.captcha-box h2 {
+    margin-bottom: 20px;
+}
 
-    .box {
-      aspect-ratio: 1;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
+.captcha-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    border-radius: 6px;
+}
 
-    .box:hover {
-      transform: scale(1.08);
-    }
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #666;
+}
 
-    .message {
-      text-align: center;
-      margin-top: 10px;
-      min-height: 24px;
-      font-weight: bold;
-    }
+.loading {
+    animation: spin 1s linear infinite;
+}
 
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
 
-    button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #00ffc3, #00bfa5);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* ==========================================================
+   GAME CONTAINER
+========================================================== */
 
-    button:hover {
-      filter: brightness(1.1);
-    }
+.container {
+    display: none;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 360px;
+    text-align: center;
+}
 
-    .shake {
-      animation: shake 0.3s;
-    }
+body.dark .container {
+    background: #111;
+    color: white;
+}
 
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
+.title {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
 
-    .bot {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: red;
-      font-size: 2rem;
-      z-index: 999;
-      animation: glitch 0.2s infinite;
-    }
+/* ==========================================================
+   GRID
+========================================================== */
 
-    @keyframes glitch {
-      0% { text-shadow: 2px 2px red; }
-      50% { text-shadow: -2px -2px cyan; }
-      100% { text-shadow: 2px -2px lime; }
-    }
-  </style>
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 20px auto;
+    width: 300px;
+}
+
+.square {
+    width: 70px;
+    height: 70px;
+    border: 2px solid #aaa;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: 12px;
+    padding: 4px;
+}
+
+.square:hover {
+    transform: scale(1.05);
+}
+
+/* ==========================================================
+   TEXT
+========================================================== */
+
+.message {
+    height: 24px;
+    margin-top: 10px;
+    color: #666;
+}
+
+.tries {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#easyBtn {
+    background: #2196f3;
+    color: white;
+}
+
+#newBtn {
+    background: #4caf50;
+    color: white;
+}
+
+/* ==========================================================
+   FLASHLIGHT
+========================================================== */
+
+.flashlight {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+        circle 120px at 0 0,
+        transparent 0%,
+        rgba(0,0,0,0.97) 90%
+    );
+    transition: opacity 0.4s;
+}
+
+.flashlight.active {
+    opacity: 1;
+}
+
+/* ==========================================================
+   BOT POPUP
+========================================================== */
+
+.bot {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    color: red;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    z-index: 99;
+}
+
+/* ==========================================================
+   FALLING BUTTON
+========================================================== */
+
+@keyframes fall {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(200px) rotate(45deg); opacity: 0; }
+}
+
+.fall {
+    animation: fall 1.4s forwards;
+}
+
+/* ==========================================================
+   EVIL TEXT
+========================================================== */
+
+.bwahaha {
+    color: red;
+    margin-top: 10px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    50% { opacity: 0.4; }
+}
+
+</style>
 </head>
 <body>
 
-<div class="app">
-  <h1>🧠 Human Test</h1>
-
-  <div class="info">
-    <div>Level: <span id="level">1</span></div>
-    <div>Lives: <span id="lives">3</span></div>
-  </div>
-
-  <div class="grid" id="grid"></div>
-
-  <div class="message" id="msg">Find the odd one!</div>
-
-  <div class="controls">
-    <button onclick="resetGame()">Restart</button>
-    <button onclick="hardMode()">Hard Mode</button>
-  </div>
+<!-- CAPTCHA -->
+<div class="captcha-box" id="captcha">
+    <h2>Verify you're human</h2>
+    <div class="captcha-checkbox" id="captchaBox">
+        <div class="checkbox" id="check"></div>
+        I'm not a robot
+    </div>
 </div>
 
-<div class="bot" id="bot">🤖 BOT DETECTED 🤖</div>
+<!-- GAME -->
+<div class="container" id="game">
+    <div class="title">Select the odd one</div>
+    <div class="grid" id="grid"></div>
+    <div class="message" id="msg">Click carefully.</div>
+    <div class="tries">Tries left: <span id="tries">3</span></div>
+
+    <div class="controls">
+        <button id="newBtn">New</button>
+        <button id="easyBtn">Easy</button>
+    </div>
+</div>
+
+<div class="flashlight" id="flash"></div>
+<div class="bot" id="bot">🤖 BOT DETECTED</div>
 
 <script>
-let level = 1;
-let lives = 3;
-let grid = document.getElementById("grid");
-let msg = document.getElementById("msg");
-let bot = document.getElementById("bot");
 
-function rand(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
+/* ==========================================================
+   GAME LOGIC
+========================================================== */
+
+let tries = 3;
+let correct = 0;
+let dark = false;
+let rage = false;
+
+const grid = document.getElementById("grid");
+const msg = document.getElementById("msg");
+const triesEl = document.getElementById("tries");
+const flash = document.getElementById("flash");
+const bot = document.getElementById("bot");
+
+/* CAPTCHA */
+document.getElementById("captchaBox").onclick = () => {
+    document.getElementById("captcha").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    buildGrid();
+};
+
+/* GRID */
+function buildGrid() {
+    grid.innerHTML = "";
+    const base = rand(100,180);
+    correct = rand(1,16);
+
+    for(let i=1;i<=16;i++){
+        const d = document.createElement("div");
+        d.className = "square";
+        d.textContent = i;
+
+        let c = `rgb(${base},${base},${base})`;
+        if(i === correct) c = `rgb(${base+3},${base+3},${base+3})`;
+
+        d.style.background = c;
+
+        d.onclick = () => clickTile(i,d);
+        grid.appendChild(d);
+    }
 }
 
-function generateColor(base) {
-  let offset = rand(5, 25);
-  return `rgb(${base.r + offset}, ${base.g + offset}, ${base.b + offset})`;
+/* CLICK */
+function clickTile(i, el){
+    tries--;
+    triesEl.textContent = tries;
+
+    if(i === correct && Math.random() > 0.8){
+        msg.textContent = "Correct.";
+    } else {
+        msg.textContent = rageMessages[Math.floor(Math.random()*rageMessages.length)];
+    }
+
+    if(tries <= 0){
+        bot.style.display = "flex";
+    }
 }
 
-function loadLevel() {
-  grid.innerHTML = "";
-  msg.textContent = "Find the odd one!";
-  
-  let size = Math.min(4 + Math.floor(level / 2), 6);
-  grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+/* EASY BUTTON */
+document.getElementById("easyBtn").onclick = () => {
+    if(dark) return;
+    dark = true;
 
-  let base = {
-    r: rand(50, 200),
-    g: rand(50, 200),
-    b: rand(50, 200)
-  };
+    document.body.classList.add("dark");
+    flash.classList.add("active");
 
-  let oddIndex = rand(0, size * size);
+    const btn = document.getElementById("easyBtn");
+    btn.classList.add("fall");
 
-  for (let i = 0; i < size * size; i++) {
-    let div = document.createElement("div");
-    div.className = "box";
+    setTimeout(()=>{
+        btn.style.display = "none";
+        const t = document.createElement("div");
+        t.className = "bwahaha";
+        t.textContent = "You trusted it.";
+        document.querySelector(".controls").appendChild(t);
+    },1200);
+};
 
-    let color = i === oddIndex 
-      ? generateColor(base) 
-      : `rgb(${base.r},${base.g},${base.b})`;
+/* FLASHLIGHT */
+document.addEventListener("mousemove", e=>{
+    if(!dark) return;
+    flash.style.background = `
+        radial-gradient(circle 120px at ${e.clientX}px ${e.clientY}px,
+        transparent 0%,
+        rgba(0,0,0,0.98) 90%)
+    `;
+});
 
-    div.style.background = color;
-
-    div.onclick = () => {
-      if (i === oddIndex) {
-        level++;
-        document.getElementById("level").textContent = level;
-        loadLevel();
-      } else {
-        lives--;
-        document.getElementById("lives").textContent = lives;
-        shakeScreen();
-
-        if (lives <= 0) {
-          triggerBot();
-        }
-      }
-    };
-
-    grid.appendChild(div);
-  }
+/* UTILS */
+function rand(min,max){
+    return Math.floor(Math.random()*(max-min))+min;
 }
 
-function shakeScreen() {
-  document.body.classList.add("shake");
-  setTimeout(() => document.body.classList.remove("shake"), 300);
-}
+const rageMessages = [
+    "Wrong.",
+    "Nope.",
+    "Try harder.",
+    "You hesitated.",
+    "That was bad.",
+    "Almost. Not really.",
+    "Too slow.",
+    "Wrong again.",
+    "You missed it.",
+    "Think harder."
+];
 
-function triggerBot() {
-  bot.style.display = "flex";
-  setTimeout(() => {
-    bot.style.display = "none";
-    resetGame();
-  }, 2000);
-}
-
-function resetGame() {
-  level = 1;
-  lives = 3;
-  document.getElementById("level").textContent = level;
-  document.getElementById("lives").textContent = lives;
-  loadLevel();
-}
-
-function hardMode() {
-  level += 3;
-  loadLevel();
-}
-
-loadLevel();
 </script>
-
 </body>
 </html>
