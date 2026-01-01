@@ -1,90 +1,64 @@
-/* ======================================================
-   HUMAN VERIFICATION UI — EVIL EDITION
+/* ============================================================
+   RAGE CAPTCHA — STYLE SHEET
+   Version: 3.0
    Author: You 😈
-   Version: 2.0
-   ====================================================== */
+   ============================================================ */
 
-/* -------------------------
-   ROOT VARIABLES
--------------------------- */
-:root {
-    --bg-light: #f2f2f2;
-    --bg-dark: #050505;
-    --panel-light: #ffffff;
-    --panel-dark: #0e0e0e;
-
-    --primary: #4caf50;
-    --danger: #ff3b3b;
-    --info: #2196f3;
-    --text-light: #eaeaea;
-    --text-dark: #333;
-
-    --glow: 0 0 15px rgba(0,255,150,0.4);
-}
-
-/* -------------------------
-   GLOBAL RESET
--------------------------- */
+/* ------------------------------------------------------------
+   RESET
+------------------------------------------------------------ */
 * {
     box-sizing: border-box;
     user-select: none;
+    -webkit-user-drag: none;
 }
 
 body {
     margin: 0;
-    padding: 20px;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: var(--bg-light);
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f2f2f2;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    transition: background 0.6s ease, color 0.6s ease;
+    transition: background 0.6s ease;
 }
 
-/* -------------------------
-   DARK MODE
--------------------------- */
-body.dark-mode {
-    background: radial-gradient(circle at top, #050505, #000);
-    color: var(--text-light);
+body.dark {
+    background: #000;
 }
 
-/* -------------------------
+/* ------------------------------------------------------------
    CAPTCHA BOX
--------------------------- */
+------------------------------------------------------------ */
 .captcha-box {
-    background: var(--panel-light);
+    background: #fff;
     padding: 30px;
-    width: 320px;
-    border-radius: 8px;
+    width: 340px;
+    border-radius: 10px;
     text-align: center;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    box-shadow: 0 0 25px rgba(0,0,0,0.25);
     animation: fadeIn 0.5s ease;
 }
 
-body.dark-mode .captcha-box {
-    background: var(--panel-dark);
-    color: var(--text-light);
-}
-
-.captcha-content h3 {
+.captcha-box h2 {
     margin-bottom: 20px;
 }
 
-/* -------------------------
+/* ------------------------------------------------------------
    CAPTCHA CHECKBOX
--------------------------- */
+------------------------------------------------------------ */
 .captcha-checkbox {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 14px;
+    border: 2px solid #ccc;
     border-radius: 6px;
-    border: 2px solid #ddd;
     cursor: pointer;
-    transition: all 0.3s ease;
     background: #fafafa;
+    transition: all 0.3s ease;
 }
 
 .captcha-checkbox:hover {
@@ -92,249 +66,198 @@ body.dark-mode .captcha-box {
 }
 
 .checkbox {
-    width: 22px;
-    height: 22px;
-    border: 2px solid #999;
-    border-radius: 4px;
-    position: relative;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #666;
 }
 
-/* Fake spinner */
 .loading {
     animation: spin 1s linear infinite;
 }
 
-.loading::after {
-    content: "⟳";
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 14px;
-}
-
-/* -------------------------
-   MAIN GAME CONTAINER
--------------------------- */
+/* ------------------------------------------------------------
+   GAME CONTAINER
+------------------------------------------------------------ */
 .container {
-    background: var(--panel-light);
+    display: none;
+    background: #fff;
     padding: 25px;
     border-radius: 10px;
-    width: 350px;
+    width: 360px;
     text-align: center;
-    box-shadow: 0 0 25px rgba(0,0,0,0.2);
-    transition: background 0.5s ease;
+    box-shadow: 0 0 30px rgba(0,0,0,0.2);
 }
 
-body.dark-mode .container {
-    background: var(--panel-dark);
-    box-shadow: 0 0 30px rgba(255,0,0,0.15);
+body.dark .container {
+    background: #0e0e0e;
+    color: #fff;
 }
 
-/* -------------------------
+/* ------------------------------------------------------------
    TITLE
--------------------------- */
+------------------------------------------------------------ */
 .title {
     font-size: 20px;
-    margin-bottom: 15px;
     font-weight: bold;
-    color: #333;
+    margin-bottom: 10px;
 }
 
-body.dark-mode .title {
-    color: #f0f0f0;
-}
-
-/* -------------------------
+/* ------------------------------------------------------------
    GRID
--------------------------- */
+------------------------------------------------------------ */
 .grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-    margin: 20px auto;
     width: 300px;
+    margin: 20px auto;
 }
 
-/* -------------------------
+/* ------------------------------------------------------------
    SQUARES
--------------------------- */
+------------------------------------------------------------ */
 .square {
     width: 70px;
     height: 70px;
-    border-radius: 4px;
-    border: 2px solid rgba(0,0,0,0.2);
+    border: 2px solid #aaa;
     cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
-    align-items: flex-start;
     justify-content: flex-start;
+    align-items: flex-start;
     padding: 4px;
     font-size: 12px;
-    font-weight: bold;
-    color: rgba(0,0,0,0.7);
-    transition: all 0.2s ease;
 }
 
 .square:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     border-color: #000;
 }
 
-body.dark-mode .square {
-    border-color: #333;
-    color: rgba(255,255,255,0.5);
+body.dark .square {
+    border-color: #444;
 }
 
-/* -------------------------
-   MESSAGE AREA
--------------------------- */
+/* ------------------------------------------------------------
+   MESSAGE + TRIES
+------------------------------------------------------------ */
 .message {
     min-height: 24px;
     font-size: 14px;
-    margin: 10px 0;
     color: #666;
 }
 
-body.dark-mode .message {
-    color: #aaa;
-}
-
-/* -------------------------
-   TRIES
--------------------------- */
 .tries {
     font-size: 14px;
-    margin-bottom: 10px;
-    color: #555;
+    margin-top: 8px;
 }
 
-body.dark-mode .tries {
-    color: #bbb;
-}
-
-/* -------------------------
+/* ------------------------------------------------------------
    CONTROLS
--------------------------- */
+------------------------------------------------------------ */
 .controls {
+    margin-top: 15px;
     display: flex;
-    gap: 10px;
     justify-content: center;
+    gap: 10px;
 }
 
-/* Buttons */
-.button {
+button {
     padding: 8px 16px;
-    border-radius: 4px;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.25s ease;
+    transition: 0.25s;
 }
 
-.button:hover {
+button:hover {
     transform: translateY(-1px);
 }
 
-.button:active {
-    transform: scale(0.95);
-}
-
-.button-easier {
-    background: var(--info);
+#easyBtn {
+    background: #2196f3;
     color: white;
 }
 
-.button-easier:hover {
-    background: #1976d2;
-}
-
-.button:not(.button-easier) {
-    background: var(--primary);
+#newBtn {
+    background: #4caf50;
     color: white;
 }
 
-/* -------------------------
-   POPUP
--------------------------- */
-.popup {
-    display: none;
+/* ------------------------------------------------------------
+   FALLING BUTTON
+------------------------------------------------------------ */
+@keyframes fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(200px) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+.fall {
+    animation: fall 1.4s forwards;
+}
+
+/* ------------------------------------------------------------
+   FLASHLIGHT OVERLAY
+------------------------------------------------------------ */
+.flashlight {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-}
-
-.popup-content {
-    background: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    text-align: center;
-    max-width: 320px;
-    animation: popIn 0.4s ease;
-}
-
-.popup h2 {
-    color: red;
-    margin-bottom: 10px;
-}
-
-/* -------------------------
-   FLASHLIGHT MODE
--------------------------- */
-.flashlight-overlay {
-    position: fixed;
-    inset: 0;
+    pointer-events: none;
+    opacity: 0;
     background: radial-gradient(
         circle 120px at 0 0,
         transparent 0%,
         rgba(0,0,0,0.97) 90%
     );
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-    z-index: 999;
+    transition: opacity 0.4s;
+    z-index: 10;
 }
 
-.flashlight-overlay.active {
+.flashlight.active {
     opacity: 1;
 }
 
-/* -------------------------
-   FALLING BUTTON
--------------------------- */
-@keyframes fallDown {
-    0% {
-        transform: translateY(0) rotate(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(150px) rotate(35deg);
-        opacity: 0;
-    }
+/* ------------------------------------------------------------
+   BOT SCREEN
+------------------------------------------------------------ */
+.bot {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    color: red;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    z-index: 100;
 }
 
-.button-falling {
-    animation: fallDown 1.5s ease forwards;
-}
-
-/* -------------------------
-   BWAHAHA TEXT
--------------------------- */
+/* ------------------------------------------------------------
+   EVIL TEXT
+------------------------------------------------------------ */
 .bwahaha {
     color: red;
+    margin-top: 12px;
     font-size: 18px;
     animation: pulse 1s infinite;
 }
 
-/* -------------------------
+/* ------------------------------------------------------------
    ANIMATIONS
--------------------------- */
+------------------------------------------------------------ */
 @keyframes spin {
-    from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pulse {
@@ -343,33 +266,42 @@ body.dark-mode .tries {
     100% { opacity: 1; }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+/* ------------------------------------------------------------
+   EXTRA CHAOS (VISUAL ONLY)
+------------------------------------------------------------ */
+body.dark .square:hover {
+    box-shadow: 0 0 12px rgba(255,0,0,0.4);
 }
 
-@keyframes popIn {
-    from { transform: scale(0.7); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+body.dark .message {
+    color: #ff4d4d;
 }
 
-/* -------------------------
-   FOOTER
--------------------------- */
+body.dark .tries {
+    color: #aaa;
+}
+
+/* ------------------------------------------------------------
+   FOOTER (OPTIONAL)
+------------------------------------------------------------ */
 .footer-text {
     position: absolute;
-    bottom: 12px;
+    bottom: 10px;
     width: 100%;
     text-align: center;
-    font-size: 0.85rem;
     color: #777;
+    font-size: 12px;
 }
 
 .footer-text a {
-    color: #c28578;
+    color: #ff7777;
     text-decoration: none;
 }
 
 .footer-text a:hover {
     text-decoration: underline;
 }
+
+/* ============================================================
+   END OF FILE — 300+ LINES
+============================================================ */
