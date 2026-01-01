@@ -2,374 +2,255 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Human Verification</title>
+<title>Behavior Mirror</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
-/* ==========================================================
-   GLOBAL
-========================================================== */
-
-* {
-    box-sizing: border-box;
-    user-select: none;
-}
+/* ================================
+   BEHAVIOR MIRROR — FINAL BUILD
+================================ */
 
 body {
     margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: system-ui, sans-serif;
     background: #f2f2f2;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background 0.6s ease;
+    height: 100vh;
+    transition: background 0.5s;
 }
 
 body.dark {
-    background: #000;
+    background: #080808;
+    color: #eee;
 }
 
-/* ==========================================================
-   CAPTCHA BOX
-========================================================== */
-
-.captcha-box {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 340px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(0,0,0,0.2);
-}
-
-.captcha-box h2 {
-    margin-bottom: 20px;
-}
-
-.captcha-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border: 2px solid #ccc;
-    cursor: pointer;
-    border-radius: 6px;
-}
-
-.checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #666;
-}
-
-.loading {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    100% { transform: rotate(360deg); }
-}
-
-/* ==========================================================
-   GAME CONTAINER
-========================================================== */
-
-.container {
-    display: none;
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
+.app {
     width: 360px;
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.25);
     text-align: center;
 }
 
-body.dark .container {
+body.dark .app {
     background: #111;
-    color: white;
 }
 
-.title {
-    font-size: 20px;
-    margin-bottom: 10px;
+h2 {
+    margin-top: 0;
 }
-
-/* ==========================================================
-   GRID
-========================================================== */
 
 .grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
-    margin: 20px auto;
-    width: 300px;
+    margin: 20px 0;
 }
 
-.square {
-    width: 70px;
+.tile {
     height: 70px;
-    border: 2px solid #aaa;
+    background: #ccc;
     cursor: pointer;
+    border-radius: 4px;
     transition: 0.2s;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    font-size: 12px;
-    padding: 4px;
 }
 
-.square:hover {
+.tile:hover {
     transform: scale(1.05);
 }
 
-/* ==========================================================
-   TEXT
-========================================================== */
-
-.message {
-    height: 24px;
-    margin-top: 10px;
-    color: #666;
-}
-
-.tries {
-    margin-top: 8px;
-    font-size: 14px;
-}
-
-/* ==========================================================
-   BUTTONS
-========================================================== */
-
 .controls {
-    margin-top: 15px;
     display: flex;
     gap: 10px;
     justify-content: center;
 }
 
 button {
-    padding: 8px 16px;
+    padding: 8px 14px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
 }
 
-#easyBtn {
-    background: #2196f3;
-    color: white;
+#easy { background: #2196f3; color: white; }
+#reset { background: #4caf50; color: white; }
+
+.message {
+    height: 24px;
+    margin: 10px 0;
+    color: #555;
 }
 
-#newBtn {
-    background: #4caf50;
-    color: white;
+.stat {
+    font-size: 13px;
+    margin-top: 5px;
 }
 
-/* ==========================================================
-   FLASHLIGHT
-========================================================== */
-
-.flashlight {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-        circle 120px at 0 0,
-        transparent 0%,
-        rgba(0,0,0,0.97) 90%
-    );
-    transition: opacity 0.4s;
-}
-
-.flashlight.active {
-    opacity: 1;
-}
-
-/* ==========================================================
-   BOT POPUP
-========================================================== */
-
-.bot {
+.overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.9);
-    color: red;
+    color: white;
     display: none;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    z-index: 99;
+    text-align: center;
+    padding: 40px;
 }
-
-/* ==========================================================
-   FALLING BUTTON
-========================================================== */
-
-@keyframes fall {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(200px) rotate(45deg); opacity: 0; }
-}
-
-.fall {
-    animation: fall 1.4s forwards;
-}
-
-/* ==========================================================
-   EVIL TEXT
-========================================================== */
-
-.bwahaha {
-    color: red;
-    margin-top: 10px;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    50% { opacity: 0.4; }
-}
-
 </style>
 </head>
+
 <body>
 
-<!-- CAPTCHA -->
-<div class="captcha-box" id="captcha">
-    <h2>Verify you're human</h2>
-    <div class="captcha-checkbox" id="captchaBox">
-        <div class="checkbox" id="check"></div>
-        I'm not a robot
-    </div>
-</div>
-
-<!-- GAME -->
-<div class="container" id="game">
-    <div class="title">Select the odd one</div>
+<div class="app">
+    <h2>Behavior Mirror</h2>
+    <div class="message" id="msg">Click the different tile.</div>
     <div class="grid" id="grid"></div>
-    <div class="message" id="msg">Click carefully.</div>
-    <div class="tries">Tries left: <span id="tries">3</span></div>
+
+    <div class="stat">Focus Level: <span id="focus">100</span></div>
+    <div class="stat">Reaction Score: <span id="score">0</span></div>
 
     <div class="controls">
-        <button id="newBtn">New</button>
-        <button id="easyBtn">Easy</button>
+        <button id="easy">Easy</button>
+        <button id="reset">Reset</button>
     </div>
 </div>
 
-<div class="flashlight" id="flash"></div>
-<div class="bot" id="bot">🤖 BOT DETECTED</div>
+<div class="overlay" id="overlay">
+    <div>
+        <h2>Pause</h2>
+        <p>This experiment reacts to frustration.</p>
+        <p>You can close it anytime.</p>
+        <button onclick="location.reload()">Restart</button>
+    </div>
+</div>
 
 <script>
-
-/* ==========================================================
-   GAME LOGIC
-========================================================== */
-
-let tries = 3;
+/* ================================
+   STATE
+================================ */
 let correct = 0;
+let score = 0;
+let focus = 100;
+let rage = 0;
+let lastClick = Date.now();
 let dark = false;
-let rage = false;
 
 const grid = document.getElementById("grid");
 const msg = document.getElementById("msg");
-const triesEl = document.getElementById("tries");
-const flash = document.getElementById("flash");
-const bot = document.getElementById("bot");
+const focusEl = document.getElementById("focus");
+const scoreEl = document.getElementById("score");
+const overlay = document.getElementById("overlay");
 
-/* CAPTCHA */
-document.getElementById("captchaBox").onclick = () => {
-    document.getElementById("captcha").style.display = "none";
-    document.getElementById("game").style.display = "block";
+/* ================================
+   INIT
+================================ */
+function init() {
     buildGrid();
-};
+}
+init();
 
-/* GRID */
+/* ================================
+   GRID
+================================ */
 function buildGrid() {
     grid.innerHTML = "";
-    const base = rand(100,180);
-    correct = rand(1,16);
+    const base = rand(120,170);
+    correct = rand(0,15);
 
-    for(let i=1;i<=16;i++){
+    for(let i=0;i<16;i++){
         const d = document.createElement("div");
-        d.className = "square";
-        d.textContent = i;
+        d.className = "tile";
+        d.style.background =
+            i === correct
+            ? `rgb(${base+3},${base+3},${base+3})`
+            : `rgb(${base},${base},${base})`;
 
-        let c = `rgb(${base},${base},${base})`;
-        if(i === correct) c = `rgb(${base+3},${base+3},${base+3})`;
-
-        d.style.background = c;
-
-        d.onclick = () => clickTile(i,d);
+        d.onclick = () => clickTile(i);
         grid.appendChild(d);
     }
 }
 
-/* CLICK */
-function clickTile(i, el){
-    tries--;
-    triesEl.textContent = tries;
+/* ================================
+   CLICK LOGIC
+================================ */
+function clickTile(i){
+    const now = Date.now();
+    const delta = now - lastClick;
+    lastClick = now;
 
-    if(i === correct && Math.random() > 0.8){
-        msg.textContent = "Correct.";
+    // behavior tracking
+    if(delta < 200) rage += 2;
+    if(delta > 1500) rage += 1;
+
+    // deception
+    if(Math.random() < 0.75){
+        msg.textContent = randomMsg();
     } else {
-        msg.textContent = rageMessages[Math.floor(Math.random()*rageMessages.length)];
+        msg.textContent = "Correct.";
+        score++;
     }
 
-    if(tries <= 0){
-        bot.style.display = "flex";
+    focus -= Math.floor(Math.random() * 5 + 1);
+    updateStats();
+
+    if(focus <= 0){
+        showOverlay();
     }
+
+    buildGrid();
 }
 
-/* EASY BUTTON */
-document.getElementById("easyBtn").onclick = () => {
-    if(dark) return;
-    dark = true;
-
+/* ================================
+   EASY BUTTON TRAP
+================================ */
+document.getElementById("easy").onclick = () => {
     document.body.classList.add("dark");
-    flash.classList.add("active");
-
-    const btn = document.getElementById("easyBtn");
-    btn.classList.add("fall");
-
-    setTimeout(()=>{
-        btn.style.display = "none";
-        const t = document.createElement("div");
-        t.className = "bwahaha";
-        t.textContent = "You trusted it.";
-        document.querySelector(".controls").appendChild(t);
-    },1200);
+    msg.textContent = "It doesn’t get easier.";
 };
 
-/* FLASHLIGHT */
-document.addEventListener("mousemove", e=>{
-    if(!dark) return;
-    flash.style.background = `
-        radial-gradient(circle 120px at ${e.clientX}px ${e.clientY}px,
-        transparent 0%,
-        rgba(0,0,0,0.98) 90%)
-    `;
-});
+/* ================================
+   RESET
+================================ */
+document.getElementById("reset").onclick = () => {
+    location.reload();
+};
 
-/* UTILS */
-function rand(min,max){
-    return Math.floor(Math.random()*(max-min))+min;
+/* ================================
+   UTIL
+================================ */
+function updateStats(){
+    focusEl.textContent = focus;
+    scoreEl.textContent = score;
 }
 
-const rageMessages = [
-    "Wrong.",
-    "Nope.",
-    "Try harder.",
-    "You hesitated.",
-    "That was bad.",
-    "Almost. Not really.",
-    "Too slow.",
-    "Wrong again.",
-    "You missed it.",
-    "Think harder."
-];
+function rand(a,b){
+    return Math.floor(Math.random()*(b-a))+a;
+}
 
+function randomMsg(){
+    const lines = [
+        "Too fast.",
+        "Too slow.",
+        "Not quite.",
+        "Try again.",
+        "Focus.",
+        "Almost.",
+        "You hesitated.",
+        "Wrong timing.",
+        "Overthinking.",
+        "Missed it."
+    ];
+    return lines[Math.floor(Math.random()*lines.length)];
+}
+
+function showOverlay(){
+    overlay.style.display = "flex";
+}
 </script>
+
 </body>
 </html>
