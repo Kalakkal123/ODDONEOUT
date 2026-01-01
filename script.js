@@ -1,265 +1,314 @@
-/* =========================================================
-   HUMAN VERIFICATION GAME — UNHINGED EDITION
+/* ============================================================
+   RAGE CAPTCHA — PSYCHOLOGICAL WARFARE EDITION
+   Version: 3.0
    Author: You 😈
-   Version: 2.0 (Evil Build)
-   ========================================================= */
+   ============================================================ */
 
-class ColorGame {
-    constructor() {
-        // UI Elements
-        this.initialCaptcha = document.getElementById("initialCaptcha");
-        this.captchaCheckbox = document.getElementById("captchaCheckbox");
-        this.checkbox = this.captchaCheckbox.querySelector(".checkbox");
+/* ============================================================
+   GLOBAL STATE
+============================================================ */
 
-        this.container = document.querySelector(".container");
-        this.grid = document.getElementById("grid");
-        this.message = document.getElementById("message");
-        this.triesElement = document.getElementById("tries");
+let gameStarted = false;
+let darkMode = false;
+let rageLevel = 0;
+let triesLeft = 3;
+let correctIndex = 0;
+let flashlightActive = false;
+let lastMoveTime = Date.now();
+let hoverTimeout = null;
+let deceptionMode = true;
+let fakeMercy = false;
+let sanity = 100;
+let clickHistory = [];
+let rageThreshold = 6;
 
-        this.newButton = document.getElementById("new");
-        this.easierButton = document.getElementById("easier");
+/* ============================================================
+   DOM ELEMENTS
+============================================================ */
 
-        this.botPopup = document.getElementById("botPopup");
-        this.flashlightOverlay = document.getElementById("flashlightOverlay");
+const captchaBox = document.getElementById("captcha");
+const captchaClick = document.getElementById("captchaBox");
+const game = document.getElementById("game");
+const grid = document.getElementById("grid");
+const msg = document.getElementById("msg");
+const triesText = document.getElementById("tries");
+const flash = document.getElementById("flash");
+const bot = document.getElementById("bot");
+const easyBtn = document.getElementById("easyBtn");
+const newBtn = document.getElementById("newBtn");
 
-        // Game State
-        this.verified = false;
-        this.gameOver = false;
-        this.darkMode = false;
-        this.lightsGone = false;
+/* ============================================================
+   INITIALIZATION
+============================================================ */
 
-        this.level = 1;
-        this.triesLeft = 3;
-        this.correctIndex = 0;
+captchaClick.addEventListener("click", () => {
+    captchaBox.style.display = "none";
+    game.style.display = "block";
+    startGame();
+});
 
-        this.baseColor = "";
-        this.differentColor = "";
+/* ============================================================
+   GAME START
+============================================================ */
 
-        this.sanity = 100;
+function startGame() {
+    gameStarted = true;
+    rageLevel = 0;
+    triesLeft = 3;
+    sanity = 100;
+    updateTries();
+    buildGrid();
+    attachGlobalListeners();
+}
 
-        this.taunts = [
-            "Nice try, robot.",
-            "You sure about that?",
-            "Interesting… but wrong.",
-            "Humans usually fail here.",
-            "You hesitated. Suspicious.",
-            "That was… embarrassing.",
-            "Try using your eyes.",
-            "This is getting sad.",
-            "Even AI would do better."
-        ];
+/* ============================================================
+   GRID CREATION
+============================================================ */
 
-        this.init();
-    }
+function buildGrid() {
+    grid.innerHTML = "";
 
-    /* ==========================
-       INIT
-    ========================== */
-    init() {
-        this.setupCaptcha();
-    }
+    const base = rand(100, 160);
+    correctIndex = rand(1, 16);
 
-    setupCaptcha() {
-        this.captchaCheckbox.addEventListener("click", () => {
-            if (this.verified) return;
+    for (let i = 1; i <= 16; i++) {
+        const tile = document.createElement("div");
+        tile.className = "square";
+        tile.textContent = i;
 
-            this.checkbox.classList.add("loading");
-            this.captchaCheckbox.style.pointerEvents = "none";
+        let color = `rgb(${base}, ${base}, ${base})`;
 
-            setTimeout(() => {
-                this.initialCaptcha.style.display = "none";
-                this.container.style.display = "block";
-                this.verified = true;
-                this.startGame();
-            }, 900);
-        });
-    }
-
-    /* ==========================
-       GAME START
-    ========================== */
-    startGame() {
-        this.newButton.onclick = () => this.resetGame();
-        this.easierButton.onclick = () => this.activateDarkMode();
-
-        this.setupFlashlight();
-        this.buildGrid();
-    }
-
-    /* ==========================
-       GRID LOGIC
-    ========================== */
-    buildGrid() {
-        if (this.gameOver) return;
-
-        this.grid.innerHTML = "";
-        this.message.textContent = "Find the odd one.";
-        this.message.style.color = "#aaa";
-
-        this.triesElement.textContent = this.triesLeft;
-
-        const size = 4;
-        const total = size * size;
-
-        const baseR = this.rand(90, 160);
-        const baseG = this.rand(90, 160);
-        const baseB = this.rand(90, 160);
-
-        this.baseColor = `rgb(${baseR}, ${baseG}, ${baseB})`;
-
-        const diff = Math.random() > 0.5 ? 3 : -3;
-        const channel = this.rand(0, 3);
-
-        let dr = baseR;
-        let dg = baseG;
-        let db = baseB;
-
-        if (channel === 0) dr += diff;
-        if (channel === 1) dg += diff;
-        if (channel === 2) db += diff;
-
-        this.differentColor = `rgb(${dr}, ${dg}, ${db})`;
-
-        // EVIL LOGIC: only even numbers
-        const evilSlots = [2, 4, 6, 8, 10, 12, 14, 16];
-        this.correctIndex = evilSlots[Math.floor(Math.random() * evilSlots.length)];
-
-        for (let i = 1; i <= total; i++) {
-            const tile = document.createElement("div");
-            tile.className = "square";
-            tile.textContent = i;
-
-            tile.style.background =
-                i === this.correctIndex
-                    ? this.differentColor
-                    : this.baseColor;
-
-            tile.onclick = () => this.handleClick(i, tile);
-
-            this.grid.appendChild(tile);
-        }
-    }
-
-    /* ==========================
-       CLICK HANDLER
-    ========================== */
-    handleClick(index, tile) {
-        if (this.gameOver) return;
-
-        this.triesLeft--;
-        this.triesElement.textContent = this.triesLeft;
-
-        const lie = Math.random() < 0.9;
-
-        if (index === this.correctIndex && !lie) {
-            this.message.textContent = "Hmm… lucky guess.";
-            this.level++;
-            this.buildGrid();
-            return;
+        if (i === correctIndex) {
+            color = `rgb(${base + 3}, ${base + 3}, ${base + 3})`;
         }
 
-        this.message.textContent =
-            this.taunts[Math.floor(Math.random() * this.taunts.length)];
+        tile.style.background = color;
 
-        this.message.style.color = "#ff5555";
-        tile.style.border = "2px solid red";
+        tile.addEventListener("mouseenter", () => onHover(tile));
+        tile.addEventListener("click", () => onClickTile(i, tile));
 
-        this.sanity -= 10;
-
-        if (this.triesLeft <= 0) {
-            this.triggerBot();
-        }
-    }
-
-    /* ==========================
-       DARK MODE
-    ========================== */
-    activateDarkMode() {
-        if (this.lightsGone) return;
-
-        this.lightsGone = true;
-        this.darkMode = true;
-
-        document.body.classList.add("dark-mode");
-        this.flashlightOverlay.classList.add("active");
-
-        this.easierButton.textContent = "…";
-        this.easierButton.disabled = true;
-
-        setTimeout(() => {
-            const evil = document.createElement("div");
-            evil.textContent = "bwahahaha.";
-            evil.style.color = "red";
-            evil.style.textAlign = "center";
-            evil.style.marginTop = "10px";
-            this.easierButton.parentNode.appendChild(evil);
-        }, 1200);
-    }
-
-    setupFlashlight() {
-        document.addEventListener("mousemove", e => {
-            if (!this.darkMode) return;
-
-            this.flashlightOverlay.style.background = `
-                radial-gradient(
-                    circle 120px at ${e.clientX}px ${e.clientY}px,
-                    transparent 0%,
-                    rgba(0,0,0,0.97) 80%
-                )
-            `;
-        });
-    }
-
-    /* ==========================
-       BOT MODE
-    ========================== */
-    triggerBot() {
-        this.gameOver = true;
-        this.botPopup.style.display = "flex";
-
-        const squares = document.querySelectorAll(".square");
-        squares.forEach(s => {
-            s.style.pointerEvents = "none";
-            s.style.opacity = "0.6";
-        });
-
-        this.newButton.disabled = true;
-        this.easierButton.disabled = true;
-
-        setTimeout(() => {
-            this.botPopup.innerHTML = `
-                <div style="text-align:center">
-                    <h1>🤖 BOT CONFIRMED</h1>
-                    <p>Human verification failed.</p>
-                    <p>Sanity Level: ${this.sanity}%</p>
-                </div>
-            `;
-        }, 1000);
-    }
-
-    /* ==========================
-       RESET
-    ========================== */
-    resetGame() {
-        this.level = 1;
-        this.triesLeft = 3;
-        this.gameOver = false;
-        this.sanity = 100;
-
-        this.botPopup.style.display = "none";
-
-        this.buildGrid();
-    }
-
-    /* ==========================
-       UTILS
-    ========================== */
-    rand(min, max) {
-        return Math.floor(Math.random() * (max - min)) + min;
+        grid.appendChild(tile);
     }
 }
 
-/* ==========================
-   START THE CHAOS
-========================== */
-new ColorGame();
+/* ============================================================
+   TILE INTERACTION
+============================================================ */
+
+function onHover(tile) {
+    if (!darkMode) return;
+
+    if (Math.random() < 0.35) {
+        tile.style.filter = "brightness(0.4)";
+    }
+
+    clearTimeout(hoverTimeout);
+    hoverTimeout = setTimeout(() => {
+        showMessage("Thinking too hard?");
+    }, 1800);
+}
+
+function onClickTile(index, tile) {
+    if (!gameStarted) return;
+
+    clickHistory.push(index);
+    triesLeft--;
+    rageLevel++;
+
+    updateTries();
+
+    const isCorrect = index === correctIndex;
+
+    if (shouldLie()) {
+        lieToPlayer();
+    } else {
+        if (isCorrect) {
+            showMessage("Correct.");
+        } else {
+            showMessage(randomRageLine());
+        }
+    }
+
+    if (triesLeft <= 0) {
+        triggerBot();
+        return;
+    }
+
+    if (rageLevel > rageThreshold) {
+        activatePsychologicalPressure();
+    }
+}
+
+/* ============================================================
+   DECEPTION SYSTEM
+============================================================ */
+
+function shouldLie() {
+    if (!deceptionMode) return false;
+    if (Math.random() < 0.8) return true;
+    return false;
+}
+
+function lieToPlayer() {
+    const lies = [
+        "Almost.",
+        "Nope.",
+        "Wrong again.",
+        "You hesitated.",
+        "That felt wrong.",
+        "Not quite.",
+        "Too slow.",
+        "Think again."
+    ];
+
+    showMessage(lies[rand(0, lies.length)]);
+}
+
+/* ============================================================
+   PSYCHOLOGICAL ATTACKS
+============================================================ */
+
+function activatePsychologicalPressure() {
+    if (rageLevel === 3) {
+        showMessage("You're getting worse.");
+    }
+
+    if (rageLevel === 5) {
+        showMessage("You were better earlier.");
+    }
+
+    if (rageLevel === 7) {
+        showMessage("You're panicking.");
+    }
+
+    if (rageLevel >= 9) {
+        fakeMercy = true;
+        showMessage("Okay… I'll help you.");
+    }
+}
+
+/* ============================================================
+   MESSAGE SYSTEM
+============================================================ */
+
+function showMessage(text) {
+    msg.textContent = text;
+    msg.style.color = "#ff4444";
+}
+
+/* ============================================================
+   EASY BUTTON TRAP
+============================================================ */
+
+easyBtn.addEventListener("click", () => {
+    if (darkMode) return;
+
+    darkMode = true;
+    document.body.classList.add("dark");
+    flash.classList.add("active");
+
+    easyBtn.classList.add("fall");
+
+    setTimeout(() => {
+        easyBtn.style.display = "none";
+        const evil = document.createElement("div");
+        evil.className = "bwahaha";
+        evil.textContent = "You trusted it.";
+        document.querySelector(".controls").appendChild(evil);
+    }, 1200);
+});
+
+/* ============================================================
+   FLASHLIGHT TRACKING
+============================================================ */
+
+document.addEventListener("mousemove", e => {
+    if (!darkMode) return;
+
+    flash.style.background = `
+        radial-gradient(
+            circle 120px at ${e.clientX}px ${e.clientY}px,
+            transparent 0%,
+            rgba(0,0,0,0.97) 90%
+        )
+    `;
+});
+
+/* ============================================================
+   BOT MODE
+============================================================ */
+
+function triggerBot() {
+    bot.style.display = "flex";
+    msg.textContent = "";
+
+    setTimeout(() => {
+        bot.innerHTML = `
+            <div>
+                <h1>🤖 BOT DETECTED</h1>
+                <p>Human verification failed.</p>
+                <p>Sanity: ${sanity}%</p>
+            </div>
+        `;
+    }, 1000);
+}
+
+/* ============================================================
+   UTILITIES
+============================================================ */
+
+function updateTries() {
+    triesText.textContent = triesLeft;
+}
+
+function rand(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+/* ============================================================
+   RAGE MESSAGES
+============================================================ */
+
+function randomRageLine() {
+    const lines = [
+        "Wrong.",
+        "Nope.",
+        "Try again.",
+        "You're rushing.",
+        "Slow down.",
+        "That was bad.",
+        "Missed it.",
+        "Not even close.",
+        "You hesitated.",
+        "Too confident.",
+        "You blinked.",
+        "You flinched.",
+        "Almost… not really.",
+        "Think harder.",
+        "Focus."
+    ];
+    return lines[rand(0, lines.length)];
+}
+
+/* ============================================================
+   SUBTLE SABOTAGE
+============================================================ */
+
+// Randomly change correct tile after hover
+setInterval(() => {
+    if (!gameStarted || !darkMode) return;
+    if (Math.random() < 0.2) {
+        correctIndex = rand(1, 16);
+    }
+}, 1200);
+
+// Reduce sanity slowly
+setInterval(() => {
+    if (!gameStarted) return;
+    sanity -= 1;
+    if (sanity < 0) sanity = 0;
+}, 2000);
+
+/* ============================================================
+   END OF FILE
+============================================================ */
